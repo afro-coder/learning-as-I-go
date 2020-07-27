@@ -12,8 +12,8 @@ type SitemapIndex struct {
 }
 
 type News struct {
-	Titles    []string `xml:"url>news>name"`
-	Keywords  []string `xml:"url>news>keywords"`
+	Titles    []string `xml:"url>name"`
+	Keywords  []string `xml:"url>keywords"`
 	Locations []string `url:"url>loc"`
 }
 type NewsMap struct {
@@ -27,20 +27,24 @@ func main() {
 	news_map := make(map[string]NewsMap)
 	resp, _ := http.Get("https://www.washingtonpost.com/news-business-sitemap.xml")
 	bytes, _ := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
 	xml.Unmarshal(bytes, &s)
 
 	fmt.Println(s.Locations)
 	for _, Location := range s.Locations {
-		fmt.Println(Location)
 		resp, _ := http.Get(Location)
-		fmt.Println("250 OK")
 		bytes, _ := ioutil.ReadAll(resp.Body)
+		resp.Body.Close()
 		xml.Unmarshal(bytes, &n)
+		fmt.Println(news_map)
+		fmt.Println(n)
 		for idx, _ := range n.Titles {
 			fmt.Println("Getting the titles")
 			news_map[n.Titles[idx]] = NewsMap{n.Keywords[idx], n.Locations[idx]}
+			break
 
 		}
+		fmt.Println(news_map)
 	}
 	for idx, data := range news_map {
 		fmt.Println("\n\n\n", idx)
